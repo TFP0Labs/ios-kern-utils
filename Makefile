@@ -15,8 +15,8 @@ LD_FLAGS         = -L. -l$(LIB) -framework CoreFoundation -Wl,-dead_strip
 
 # Universal defaults
 LIBTOOL_FLAGS   ?= -static
-IOS_GCC_ARCH    ?= -arch armv7 -arch arm64 -miphoneos-version-min=6.0
-MACOS_GCC_ARCH  ?= -arch x86_64 -mmacosx-version-min=10.10
+IOS_GCC_ARCH    ?= -arch arm64 -miphoneos-version-min=6.0
+MACOS_GCC_ARCH  ?= 
 IOS_GCC_FLAGS   ?= $(GCC_FLAGS)
 MACOS_GCC_FLAGS ?= $(GCC_FLAGS)
 IOS_LD_FLAGS    ?= $(LD_FLAGS)
@@ -129,22 +129,7 @@ MACOS_GCC   ?= $(H_$(HOST)_MACOS_GCC)
 #	SUFFIXES := $(SUFFIXES) macos
 #endif
 
-SUF_all     = ios macos
-SUF_ios     = ios
-SUF_macos   = macos
-
-SUFFIXES :=
-ifdef TARGET
-	SUFFIXES := $(SUF_$(TARGET))
-endif
-ifndef SUFFIXES
-	ifdef IOS_GCC
-		SUFFIXES := $(SUFFIXES) $(SUF_ios)
-	endif
-	ifdef MACOS_GCC
-		SUFFIXES := $(SUFFIXES) $(SUF_macos)
-	endif
-endif
+SUFFIXES := ios
 
 .PHONY: help all lib dist xz deb clean
 
