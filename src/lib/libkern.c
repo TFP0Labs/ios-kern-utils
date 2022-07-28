@@ -5,6 +5,8 @@
  * Copyright (c) 2016-2017 Siguza
  */
 
+#define CORELLIUM 1
+
 #include <dlfcn.h>              // RTLD_*, dl*
 #include <limits.h>             // UINT_MAX
 #include <stdio.h>              // fprintf, snprintf
@@ -24,6 +26,12 @@
 #include "mach-o.h"             // CMD_ITERATE
 
 #include "libkern.h"
+
+#ifdef CORELLIUM
+#include "corellium.h"
+#endif
+
+
 
 #define MAX_CHUNK_SIZE 0xFFF /* MIG limitation */
 #define SYS_MAX                                 530
@@ -69,6 +77,24 @@ kern_return_t get_kernel_task(task_t* ptask)
 
 typedef uint64_t kaddr_t;
 
+#ifdef CORELLIUM
+vm_size_t kernel_read(vm_address_t addr, vm_size_t size, void *buf)
+{
+    return unicopy(UNICOPY_DST_USER|UNICOPY_SRC_KERN, (uintptr_t)buf, addr, size);
+}
+
+vm_size_t kernel_write(vm_address_t addr, vm_size_t size, void *buf)
+{
+    return unicopy(UNICOPY_DST_KERN|UNICOPY_SRC_USER, (uintptr_t)addr, (uintptr_t)buf, size);
+}
+
+vm_address_t get_kernel_base(void)
+{
+    return get_kernel_addr(0);
+}
+
+#else
+
 vm_address_t get_kernel_base(void)
 {
     task_t tfp0;
@@ -110,6 +136,7 @@ vm_address_t get_kernel_base(void)
     }
     return 0;
 }
+
 
 vm_size_t kernel_read(vm_address_t addr, vm_size_t size, void *buf)
 {
@@ -173,6 +200,7 @@ vm_size_t kernel_write(vm_address_t addr, vm_size_t size, void *buf)
 
     return bytes_written;
 }
+#endif  /* CORELLIUM */
 
 vm_address_t kernel_find(vm_address_t addr, vm_size_t len, void *buf, size_t size)
 {

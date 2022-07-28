@@ -190,11 +190,14 @@ $(OBJDIR)/%.macos: $(SRCDIR)/tools/%.c lib$(LIB).a | $(OBJDIR)
 	$(MACOS_GCC) -o $@ $(MACOS_GCC_FLAGS) $(CFLAGS) $(MACOS_LD_FLAGS) $(LDFLAGS) $(MACOS_GCC_ARCH) $<
 	$(STRIP) $@
 
-lib$(LIB).a: $(patsubst $(SRCDIR)/lib/%.c,$(OBJDIR)/%.o,$(wildcard $(SRCDIR)/lib/*.c))
+lib$(LIB).a: $(patsubst $(SRCDIR)/lib/%.c,$(OBJDIR)/%.o,$(wildcard $(SRCDIR)/lib/*.c)) $(patsubst $(SRCDIR)/lib/%.s,$(OBJDIR)/%.o,$(wildcard $(SRCDIR)/lib/*.s))
 	$(LIBTOOL) $(LIBTOOL_FLAGS) -o $@ $^
 
 #$(OBJDIR)/%.o: $(SRCDIR)/lib/%.c | $(OBJDIR)
 #	$(IGCC) -c -o $@ $(IGCC_FLAGS) $(IGCC_ARCH) $<
+
+$(OBJDIR)/corellium.ios.o: $(SRCDIR)/lib/corellium.s | $(OBJDIR)
+	$(IOS_GCC) -c -o $@ $(IOS_GCC_FLAGS) $(CFLAGS) $(IOS_GCC_ARCH) $<
 
 $(OBJDIR)/%.ios.o: $(SRCDIR)/lib/%.c | $(OBJDIR)
 	$(IOS_GCC) -c -o $@ $(IOS_GCC_FLAGS) $(CFLAGS) $(IOS_GCC_ARCH) $<
